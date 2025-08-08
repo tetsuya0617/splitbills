@@ -106,7 +106,7 @@ def handle_image_message(event):
     if usage_tracker.is_limit_exceeded():
         line_client.reply_text(
             reply_token,
-            "申し訳ございません。無料利用枠の上限に達しました。翌月にリセットされます。"
+            "Sorry, you've reached the free tier limit. It will reset next month."
         )
         return
     
@@ -124,7 +124,7 @@ def handle_image_message(event):
         if not ocr_text:
             line_client.reply_text(
                 reply_token,
-                "レシートの文字を読み取れませんでした。もう一度撮影してください。"
+                "Could not read the receipt text. Please take another photo."
             )
             return
         
@@ -134,7 +134,7 @@ def handle_image_message(event):
         if not candidates:
             line_client.reply_text(
                 reply_token,
-                "金額を検出できませんでした。レシートをはっきり撮影してください。"
+                "No amounts detected. Please take a clearer photo of the receipt."
             )
             return
         
@@ -146,17 +146,17 @@ def handle_image_message(event):
             candidates[:5],  # Top 5 candidates
             app_name=os.getenv("APP_NAME", "splitbills")
         )
-        line_client.reply_flex(reply_token, "金額を選択", flex_message)
+        line_client.reply_flex(reply_token, "Select amount", flex_message)
         
     except Exception as e:
         logger.error(f"Error processing image: {e}")
         
         if "429" in str(e) or "quota" in str(e).lower():
-            message = "Vision APIの利用制限に達しました。しばらくお待ちください。"
+            message = "Vision API quota exceeded. Please try again later."
         elif "permission" in str(e).lower() or "403" in str(e):
-            message = "OCRサービスへのアクセス権限エラーです。管理者にお問い合わせください。"
+            message = "OCR service permission error. Please contact administrator."
         else:
-            message = "画像処理中にエラーが発生しました。もう一度お試しください。"
+            message = "Error processing image. Please try again."
         
         line_client.reply_text(reply_token, message)
 
@@ -173,7 +173,7 @@ def handle_postback(event):
         try:
             amount = Decimal(data.split("=")[1])
         except:
-            line_client.reply_text(reply_token, "金額の処理に失敗しました。")
+            line_client.reply_text(reply_token, "Failed to process amount.")
             return
         
         # Update session
@@ -182,7 +182,7 @@ def handle_postback(event):
         # Ask for number of people
         line_client.reply_text(
             reply_token,
-            f"合計金額: {amount:,.0f}\n何人で割りますか？人数を数字で入力してください。"
+            f"Total: {amount:,.0f}\nHow many people to split? Enter a number."
         )
 
 
@@ -199,7 +199,7 @@ def handle_text_message(event):
     if not state or state["stage"] != "awaiting_people":
         line_client.reply_text(
             reply_token,
-            "レシートの画像を送信してください。"
+            "Please send a receipt image."
         )
         return
     
@@ -211,7 +211,7 @@ def handle_text_message(event):
     except:
         line_client.reply_text(
             reply_token,
-            "正しい人数を数字で入力してください（例: 3）"
+            "Please enter a valid number (e.g. 3)"
         )
         return
     
@@ -224,10 +224,10 @@ def handle_text_message(event):
     
     # Send result
     result_message = (
-        f"【割り勘計算結果】\n"
-        f"合計金額: {total:,.0f}\n"
-        f"人数: {people}人\n"
-        f"一人当たり: {per_person:,.2f}"
+        f"【Split Bill Result】\n"
+        f"Total: {total:,.0f}\n"
+        f"People: {people}\n"
+        f"Per person: {per_person:,.2f}"
     )
     
     line_client.reply_text(reply_token, result_message)

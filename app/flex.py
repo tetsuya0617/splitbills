@@ -29,7 +29,7 @@ def create_amount_selection_flex(
                 "type": "postback",
                 "label": f"{amount:,.0f}",
                 "data": f"amount={amount}",
-                "displayText": f"合計金額: {amount:,.0f}"
+                "displayText": f"Total: {amount:,.0f}"
             },
             "style": "primary",
             "height": "md",
@@ -64,7 +64,7 @@ def create_amount_selection_flex(
             "contents": [
                 {
                     "type": "text",
-                    "text": "合計金額を選択",
+                    "text": "Select Total Amount",
                     "weight": "bold",
                     "size": "md",
                     "color": "#2D3748",
@@ -73,7 +73,7 @@ def create_amount_selection_flex(
                 },
                 {
                     "type": "text",
-                    "text": "レシートから検出された金額候補です",
+                    "text": "Amount candidates detected from receipt",
                     "size": "sm",
                     "color": "#718096",
                     "margin": "sm",
